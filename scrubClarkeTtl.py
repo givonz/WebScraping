@@ -3,14 +3,13 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
-def get_all_links(webPage):
+def get_all_links(webPage,fileNames,fileCommonNames,fileSymptoms):
 #
 #   ClarkeStart = urlopen("http://www.homeoint.org/clarke/a.htm").read()
     ClarkeStart = urlopen(webPage).read()
     soup=BeautifulSoup(ClarkeStart,"html.parser")
     y=soup.find_all("a")
 
-#open file, append
     for link in y:
         if len(link.get("href"))==5:
             continue
@@ -24,8 +23,8 @@ def get_all_links(webPage):
 # p2 = latin name, p3=common names
 # p4=clinical uses--have to parse p4 manually, looses data in soup
         for line in range(len(y2)):
-            print(y2[2],"\n",y2[3],"\n")
-            ans=input("Y/N ")
+#            print(y2[2],"\n",y2[3],"\n")
+#            ans=input("Y/N ")
 # extract name
             name=str(y2[2])
 # countStop is "<" because 2nd "<" indicates end of name
@@ -42,7 +41,9 @@ def get_all_links(webPage):
 #removes period after name
                          stop=pos-1
             print(name[start:stop])
-            ans=input("y-n")
+#            ans=input("y-n")
+# write out latin names
+            fileNames.write(name[start:stop]+"\n")
 #extract common names
             commonNames=str(y2[3])
 # countStop is "<" because 2nd "<" indicates end of name
@@ -58,8 +59,7 @@ def get_all_links(webPage):
                      if countStop==2:
 #removes period after name
                          stop=pos-1
-            print(commonNames[start:stop])
-#&&&
+#            print(commonNames[start:stop])
             searchLen=len(commonNames)
             for x in range(searchLen):
                  if x==searchLen:
@@ -84,9 +84,12 @@ def get_all_links(webPage):
                       commonNames=commonNames[:pos]+commonNames[pos+1:]
                       break
             formattedCommonNames=convert2CSV(commonNames)
+# write common names
+            fileCommonNames.write(formattedCommonNames+"\n")
 #extract diseases
             diseases=extractDiseases(soup2)
-            print(diseases)
+            fileSymptoms.write(diseases+"\n")
+#            print(diseases)
 #write record
             break
 #close file
@@ -104,11 +107,11 @@ def extractDiseases(soup3):
       if startDiseases>0 and info[pos:pos+13]=="</blockquote>":
           stopDiseases=pos
           break
-  print(info[startDiseases:stopDiseases])
+#  print(info[startDiseases:stopDiseases])
   reformattedDiseases=info[startDiseases:stopDiseases]
-  print(startDiseases,stopDiseases)
+#  print(startDiseases,stopDiseases)
 # parse for <i> & replace with 2
-  print(reformattedDiseases)
+#  print(reformattedDiseases)
   searchLen=len(reformattedDiseases)
   for x in range(searchLen):
       if x==searchLen:
@@ -139,15 +142,16 @@ def extractDiseases(soup3):
 #or reformattedDiseases[x:x+1]=="\f" or reformattedDiseases[x:x+1]=="\r" or reformattedDiseases[x:x+1]=="\t":
           reformattedDiseases=reformattedDiseases[:x]+reformattedDiseases[x+1:]
 
-  print(reformattedDiseases)
+#  print(reformattedDiseases)
 #format output record
   outrec=convert2CSV(reformattedDiseases)
 
 #  info=info[startDiseases:stopDiseases]
 #remove all tags, replace italics with numeral 2
 # &&& up to here
-  ans=input("display diseases")
-  return(info[startDiseases:stopDiseases])
+#  ans=input("display diseases")
+#  return(info[startDiseases:stopDiseases])
+  return(outrec)
 
 def convert2CSV(outrec):
   csvRecord='"'
@@ -183,16 +187,22 @@ def convert2CSV(outrec):
                  csvRecord=csvRecord[:x+2]+'","'+csvRecord[x+2:]
                  x=x+3   #advance 2 characters + 1, or grows infinitely
       x+=1
-  print(csvRecord)
-  ans=input("y--n")
+#  print(csvRecord)
+#  ans=input("y--n")
   return(csvRecord)
 
 def main():
+    fileNames=open("h-remedies","w")
+    fileCommonNames=open("commonRemedyNames","w")
+    fileSymptoms=open("remedy-symptoms","w")
 #loop 26 times, from a-z
     for x in range(26):
         webPage="http://www.homeoint.org/clarke/"+chr(97+x)+".htm"
 #       print(webPage)
-        get_all_links(webPage)
+        get_all_links(webPage,fileNames,fileCommonNames,fileSymptoms)
+    fileNames.close()
+    fileCommonNames.close()
+    fileSymptoms.close()
 
 main()
 
