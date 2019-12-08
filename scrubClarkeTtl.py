@@ -59,6 +59,23 @@ def get_all_links(webPage):
 #removes period after name
                          stop=pos-1
             print(commonNames[start:stop])
+#&&&
+            searchLen=len(commonNames)
+            for x in range(searchLen):
+                 if x==searchLen:
+                      break
+                 if commonNames[x:x+8]=="        ":
+                      commonNames=commonNames[:x-1]+commonNames[x+10:]
+            start=0
+            stop=0
+            for pos in range(len(commonNames)):
+                  if commonNames[pos:pos+1]=="<":
+                      start=pos
+                  if commonNames[pos:pos+1]==">":
+                      stop=pos
+                      break
+            commonNames=commonNames[1:1]+commonNames[pos+1:]
+            formattedCommonNames=convert2CSV(commonNames)
 #extract diseases
             diseases=extractDiseases(soup2)
             print(diseases)
@@ -130,6 +147,9 @@ def convert2CSV(outrec):
   upto=0
   while(x < len(outrec)):
       if outrec[x:x+1] == '.':
+           if outrec[x-1:x]=='N' or outrec[x-1:x]=='O':
+                x+=1
+                continue
            csvRecord=csvRecord+outrec[upto:x]+'","'
            y=1
            while(outrec[x+y:x+y+1]==' '):  #passing over space
@@ -139,7 +159,22 @@ def convert2CSV(outrec):
       x+=1
   csvRecord=csvRecord[:len(csvRecord)-2]  #remove trailing ',"'
 #add in level 1
+  x=0
+  while(x < len(csvRecord)):
+      if csvRecord[x:x+1] == '"' and (csvRecord[x+1:x+2]>="A" and csvRecord[x+1:x+2]<="Z"):
+           csvRecord=csvRecord[:x+1]+'1'+csvRecord[x+1:]
+      x+=1
 #separate levels into separate fields
+  x=0
+  while(x < len(csvRecord)):
+      if csvRecord[x:x+1] == '"':
+            if csvRecord[x+1:x+2]=="1":
+                 csvRecord=csvRecord[:x+2]+'","'+csvRecord[x+2:]
+                 x=x+3
+            if csvRecord[x+1:x+2]=="2":
+                 csvRecord=csvRecord[:x+2]+'","'+csvRecord[x+2:]
+                 x=x+3   #advance 2 characters + 1, or grows infinitely
+      x+=1
   print(csvRecord)
   ans=input("y--n")
   return(csvRecord)
