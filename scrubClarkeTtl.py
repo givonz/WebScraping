@@ -75,6 +75,14 @@ def get_all_links(webPage):
                       stop=pos
                       break
             commonNames=commonNames[1:1]+commonNames[pos+1:]
+#remove parenthesis
+            for pos in range(len(commonNames)):
+                  if commonNames[pos:pos+1]=="(":
+                      commonNames=commonNames[:pos]+commonNames[pos+1:]
+                      continue
+                  if commonNames[pos:pos+1]==")":
+                      commonNames=commonNames[:pos]+commonNames[pos+1:]
+                      break
             formattedCommonNames=convert2CSV(commonNames)
 #extract diseases
             diseases=extractDiseases(soup2)
