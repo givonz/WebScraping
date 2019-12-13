@@ -10,21 +10,50 @@ def get_all_links(webPage,fileNames,fileCommonNames,fileSymptoms):
     soup=BeautifulSoup(ClarkeStart,"html.parser")
     y=soup.find_all("a")
 
+# finds end of page
+#    returnPoint=0
+#    for line in range(len(y)):
+#         findExit=str(y[returnPoint])
+#         for x in range(len(findExit)):
+#              if findExit[x:x+6]==">H.I.<":
+#                  print("Found It ",returnPoint)
+#         returnPoint+=1
+#    ans=input("how long "+str(returnPoint)+"\n")
+    returnPoint=0
+    for link in y:
+         returnPoint+=1
+# have to reset for additional pace
+    returnPoint-=1
+#    ans=input("how long "+str(returnPoint)+"\n")
+
+    upto=0
     for link in y:
         if len(link.get("href"))==5:
+            upto+=1
             continue
+# skip generic data
         if  link.get("href")[-9:]=="index.htm":
+            findExit=str(y[upto])
+            for x in range(len(findExit)):
+                 if findExit[x:x+6]==">H.I.<":
+                      return
+            upto+=1
             continue
-#go to remedy page
+# end of page
+        upto+=1
+        if upto==returnPoint:
+            return
+#go to remedy page; extract data
         webpage2="http://www.homeoint.org/clarke/"+link.get("href")
         remedyRead = urlopen(webpage2).read()
         soup2=BeautifulSoup(remedyRead,"html.parser")
         y2=soup2.find_all("p")
+#
 # p2 = latin name, p3=common names
 # p4=clinical uses--have to parse p4 manually, looses data in soup
         for line in range(len(y2)):
-#            print(y2[2],"\n",y2[3],"\n")
-#            ans=input("Y/N ")
+# reached end of links on page
+            
 # extract name
             name=str(y2[2])
 # countStop is "<" because 2nd "<" indicates end of name
@@ -90,9 +119,8 @@ def get_all_links(webPage,fileNames,fileCommonNames,fileSymptoms):
             diseases=extractDiseases(soup2)
             fileSymptoms.write(diseases+"\n")
 #            print(diseases)
-#write record
             break
-#close file
+
 
 def extractDiseases(soup3):
   info=str(soup3)
