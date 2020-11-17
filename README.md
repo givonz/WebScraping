@@ -14,3 +14,4 @@ The site www.homeoint.org, which is being mined with this software, is being min
 Additional Python scripts from web scraping projects have been included.
 A script that will read a vertical address list and convert it into one line in CSV format.
 A script that uses Google Maps API to retrieve nearby place information and convert the information into CSV format.
+         This script shows how to make http calls, read & process a JSON object.
