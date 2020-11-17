@@ -1,0 +1,51 @@
+import requests
+import json
+import csv
+
+"""
+script to retrieve Google Places results and
+output results as CSV.
+
+takes a file of formatted addresses as input
+the addresses are formatted to query string format
+i.e.  100+Main+Street+Smallville+Kansas
+"""
+
+# open output file for csv line writingt
+outfile=open('HOAsurroundings',mode='w')
+outfile_writer=csv.writer(outfile,delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
+
+# open input address file (to search for surrounding places)
+infile=open('input-addresses.csv','r')
+# initialize & get first address
+#line=infile.readline()
+#initialize query string
+# build API string
+getParam='https://maps.googleapis.com/maps/api/place/textsearch/json?key=XXXX&radius=5000&address=&types=city_hall&fields=name,address_component,url&business_status=OPERATIONAL&query='
+# read file until EOF
+line="zzz"
+while(line != ''):
+# add address to query to API string
+     line=infile.readline()
+     if line == '':
+          break
+     queryString=getParam+line
+# make request & get response
+     response=requests.get(queryString)
+# process response
+# make a readable header that is imported as a line not separate fields
+     header=line.replace('+',' ')
+     header='\n'+header+'\n'
+     print(header)
+# write headr to output file
+     outfile.writelines([header])
+     processResp = response.json()
+     for x in range(0,len(processResp['results'])-1):
+          print(x)
+          name=processResp['results'][x]['name']
+          address=processResp['results'][x]['formatted_address']
+          types=processResp['results'][x]['types']
+          outfile_writer.writerow([name,address,types])
+#infile.close()
+#outfile.close()
+
