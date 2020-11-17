@@ -1,5 +1,5 @@
 # WebScraping
-Web Scraping for Medical Research
+Web Scraping for Medical Research & Address Retrieval for Marketing Purposes
 
 This repository (will) contains many files related to an ongoing medical research that involves studying the medicinal use of herbs.  The goal is to use homeopathic drug provings (testings) as a base, to define which diseases and symptoms herbs will treat effectively.  Then, to correlate what chemicals and medicines are in these herbs.  Then, to correlate those medicines to the diseases being treated.  The ultimate goal is to come up with a nutritional therapy plan for various diseases.
 
