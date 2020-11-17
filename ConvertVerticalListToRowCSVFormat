@@ -1,0 +1,84 @@
+# read in a text file
+# convert from vertical to horizontal, record format
+# make into csv for import to spreadsheet
+
+infile=open("xxx.txt")
+outfile = open("yyy.cvs", "w")
+
+#initialize variables for looping
+line="-1"
+counter=0
+hasContact=True
+# eof == ""
+while (line!=""):
+     line=infile.readline()
+     counter=counter+1
+# blank line skip
+     if line[0:1]=="\n":
+          continue
+# record separator, skip to next record
+     if line.strip()=="*DETAILS*":
+     if line==("-1"):
+#first time do nothing -- doesn't work
+          continue
+     else:
+          counter=0
+          outfile.write("\n")
+          continue
+# if first line is contact, add field
+     if counter==1:
+     if line[0:2]==('Mr'):
+#write out in quotations + ','
+          outfile.write('\"'+line.strip()+'\",')
+#counter=counter+1
+          continue
+     if line[0:2]==('Ms'):
+#write out in quotations + ','
+          outfile.write('\"'+line.strip()+'\",')
+#counter=counter+1
+          continue
+     if line[0:2]==('Mi'):
+#write out in quotations + ','
+          outfile.write('\"'+line.strip()+'\",')
+#counter=counter+1
+          continue
+# if first line is not contact, add blank field
+# then write out company name
+# go to next line
+     else:
+     if counter==1:
+          outfile.write('\"\",\"'+line.strip()+'\",')
+          counter=1
+          continue
+
+# if there was a contact, now write out the company name
+     if counter==2:
+          outfile.write('\"'+line.strip()+'\",')
+#counter=counter+1
+          continue
+
+# phone number, as is
+# ! not all numbers are coming through
+     if counter==3:
+         outfile.write('\"'+line.strip()+'\",')
+         counter=counter+1
+         continue
+# if email, read to space, that's the whole email
+#if counter==4:
+     if line.find("@")!= (-1):
+         email=line[0:line.find(" ")]
+         outfile.write('\"'+email+'\",')
+         counter=counter+1
+         continue
+#continue
+# address line
+     if line[0:1]!='\n':
+         outfile.write('\"'+line.strip()+'\",')
+         continue
+     else:
+         outfile.write("\n")
+# end read loop
+
+
+infile.close()
+outfile.close()
