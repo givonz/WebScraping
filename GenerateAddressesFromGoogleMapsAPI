@@ -12,7 +12,7 @@ i.e.  100+Main+Street+Smallville+Kansas
 """
 
 # open output file for csv line writingt
-outfile=open('HOAsurroundings',mode='w')
+outfile=open('surroundings',mode='w')
 outfile_writer=csv.writer(outfile,delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
 
 # open input address file (to search for surrounding places)
