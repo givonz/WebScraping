@@ -4,7 +4,9 @@ import csv
 
 """
 script to retrieve Google Places results and 
-output results as CSV.
+output results as CSV.  This includes places and details,
+which require separate calls.  Also, each type requires a call.
+As far as I can tell, one call won't retrieve all types.
 
 A menu of all the types of locations that the Google Place API
 offers is listed.  Enter the corresponding number to select 
