@@ -1,0 +1,120 @@
+import requests
+import json
+import csv
+
+"""
+script to retrieve Google Places results and 
+output results as CSV.
+
+A menu of all the types of locations that the Google Place API
+offers is listed.  Enter the corresponding number to select 
+that type.  
+Addresses are read in from a file, formatted to query string format
+i.e.  100+Main+Street+Smallville+Kansas
+The surrounding locations of the type selected, are found
+and written to a csv file.
+"""
+
+# input Google Place Types, in csv format
+# open input file for csv read
+infile2=open('googlePlaceTypes.csv',mode='r')
+rows=csv.reader(infile2,delimiter=',',quotechar='"')
+# using list comprehension to convert to one row/tuple of types
+# for easier processing
+_rows=[x for x in rows]
+firstRow=_rows[0]
+typesAvailable=[types for types in firstRow]
+infile2.close()
+
+#select location type
+# display a menu, command line, 3 types across, in columns
+# one column too large, over extends.  left it that way
+y=0
+z=0
+ans=''
+menuLine=''
+for x in typesAvailable:
+     if len(x)>21:
+          itemOut=x
+     if len(x)<=21:
+          itemOut="{:<21}".format(x)
+     if y<10:
+          option=' '+str(y)
+     else:
+          option=str(y)
+     menuLine=menuLine+(option+' '+itemOut+'  ')
+     y=y+1
+     if y%3==0:
+          print(menuLine)
+          menuLine=''
+          z=z+1
+     if z==0:
+          continue
+     if z%10==0:
+          ans=input("Enter Choice or Press Space to Continue:  ")
+          z=z+1
+     if ans.isnumeric():
+          break
+
+# open output file for csv line writingt
+outfile=open('surroundings',mode='w')
+outfile_writer=csv.writer(outfile,delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
+
+# open input address file (to search for surrounding places)
+infile=open('Addresses.csv','r')
+# initialize & get first address
+#line=infile.readline()
+#initialize query string
+# build API string
+getParam='https://maps.googleapis.com/maps/api/place/textsearch/json?key=XXX&radius=5000&fields=name,address_component,url&business_status=OPERATIONAL&query='
+getPhoneP1='https://maps.googleapis.com/maps/api/place/details/json?key=XXX&place_id='
+getPhoneP2='&fields=website,formatted_phone_number'
+
+# read file until EOF (address file)
+line="zzz"
+while(line != ''):
+# add address to query to API string
+     line=infile.readline()
+     if line == '':
+          break
+# get surrounding addresses          
+     queryString=getParam+line
+     queryString=queryString+'&type='+typesAvailable[int(ans)]
+# make request & get response
+     response=requests.get(queryString)
+# process response
+# make a readable header that is imported as a line not separate fields
+# for the csv outfile / spreadsheet
+     header=line.replace('+',' ')
+     header='\n'+header+'\n'
+     print(header)
+# write headr to output file
+     outfile.writelines([header])
+# processing API response
+     processResp = response.json()
+     for x in range(0,len(processResp['results'])-1):
+          print(x)
+          name=processResp['results'][x]['name']
+          address=processResp['results'][x]['formatted_address']
+          types=processResp['results'][x]['types']
+          placeId=processResp['results'][x]['place_id']
+# build query string to Google Place Details to get phone# & website          
+          queryPhone=getPhoneP1+placeId+getPhoneP2
+          phoneResponse=requests.get(queryPhone)
+          processPhoneResp=phoneResponse.json()
+# API does not return empty fields if information is unavailable. 
+# API only returns fields, IF information is known.
+# therefore, need try/except or will get error if field isn't there
+          try:
+               phone=processPhoneResp['result']['formatted_phone_number']
+          except:
+               phone="unavailable"
+          try:
+               website=processPhoneResp['result']['website']
+          except:
+               website="unavailable"
+# write csv file               
+          outfile_writer.writerow([placeId,name,address,phone,website,types])
+# close files or output won't be written to disk          
+infile.close()
+outfile.close()
